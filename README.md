@@ -25,9 +25,10 @@ cc_pm_mm=499.37
 1. Mapas raster del modelo de balance hídrico.
 
 ## Ejecución del script
-1. Descargue en su comptadora los archivos:
+1. Descargue en su computadora los archivos:
     - [balancehidrico.py](https://github.com/balancehidrico/pyqgis/blob/main/balancehidrico.py)
     - [balancehidrico.ini](https://github.com/balancehidrico/pyqgis/blob/main/balancehidrico.ini)  
+    - 
 Se recomienda colocarlos en un directorio separado.
 2. Coloque en el mismo directorio los 12 archivos raster de precipitación y de evapotranspiración potencial.
 3. Abra en QGIS el *script* `balancehidrico.py` con la opción de menú *Plugins - Python Console* y el botón *Open Script...*.
