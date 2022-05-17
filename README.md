@@ -1,6 +1,24 @@
 # balancehidrico.py
-El *script* `balancehidrico.py` genera un modelo de balance hídrico.
+El *script* `balancehidrico.py` genera un modelo de balance hídrico. Es un programa desarrollado en el lenguaje [Python](https://www.python.org/) para ejecutarse en el sistema de información geográfica [QGIS](https://qgis.org/).
 
 ## Entradas
+- 12 archivos raster con promedios mensuales de precipitación con nombres: `p_01.tif`, `p_02.tif`, `p_03.tif`, ..., `p_10.tif`, `p_11.tif`, `p_12.tif`.
+- 12 archivos raster con promedios mensuales de evapotranspiración potencial con nombres: `etp_01.tif`, `etp_02.tif`, `etp_03.tif`, ..., `etp_10.tif`, `etp_11.tif`, `etp_12.tif`.
+- 1 archivo de propiedades con valores de variables a utilizar en los cálculos. Este archivo debe llamarse `balancehidrico.ini`. Seguidamente se presenta un ejemplo de su contenido:
+
+```
+# Parámetros generales
+[general]
+llu_ret=0.2
+fc=18.41
+kp=0.06
+kv=0.10
+kfc=0.05191
+i=1
+hsi=860
+cc_mm=1093.5
+pm_mm=594.14
+cc_pm_mm=499.37
+```
 
 ## Salidas
