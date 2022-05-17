@@ -1,4 +1,8 @@
+import os
+import configparser
+
 from qgis.PyQt import QtGui
+from console.console import _console
 
 
 
@@ -12,15 +16,66 @@ from qgis.PyQt import QtGui
 
 #
 #
+# Lectura de archivo con valores
+#
+#
+
+config = configparser.ConfigParser()
+config.read('E:/balancehidrico/balancehidrico.ini')
+
+
+
+#
+#
+# Constantes
+#
+#
+
+print("Valores leídos de balancehidrico.ini:")
+LLU_RET = float(config.get("general", "llu_ret"))
+print("LLU_RET", LLU_RET)
+FC = float(config.get("general", "fc"))
+print("FC", FC)
+KP = float(config.get("general", "kp"))
+print("KP", KP)
+KV = float(config.get("general", "kv"))
+print("KV", KV)
+KFC = float(config.get("general", "kfc"))
+print("KFC", KFC)
+I = float(config.get("general", "i"))
+print("I", I)
+HSI = float(config.get("general", "hsi"))
+print("HSI", HSI)
+CC_MM = float(config.get("general", "cc_mm"))
+print("CC_MM", CC_MM)
+PM_MM = float(config.get("general", "pm_mm"))
+print("PM_MM", PM_MM)
+CC_PM_MM = float(config.get("general", "cc_pm_mm"))
+print("CC_PM_MM", CC_PM_MM)
+
+
+#
+#
 # Archivos
 #
 #
 
-# Directorios de datos
+# Directorio del script
+dir_script = os.path.dirname(_console.console.tabEditorWidget.currentWidget().path) + "/"
+
+# Directorios de datos de entrada
+datos_entrada = dir_script
 # datos_entrada = 'C:/Users/mfvargas/balancehidrico/datos/entrada/'
+# datos_entrada = 'E:/balancehidrico/datos/entrada/'
+# datos_entrada = '/home/mfvargas/balancehidrico/balancehidrico/datos/entrada/'
+
+# Directorio de datos de salida
+if not os.path.exists(dir_script + "salida"):
+    os.makedirs(dir_script + "salida")
+datos_salida = dir_script + "salida/"
 # datos_salida = 'C:/Users/mfvargas/balancehidrico/datos/salida/'
-datos_entrada = '/home/mfvargas/balancehidrico/balancehidrico/datos/entrada/'
-datos_salida = '/home/mfvargas/balancehidrico/balancehidrico/datos/salida/'
+# datos_salida = 'E:/balancehidrico/datos/salida/'
+# datos_salida = '/home/mfvargas/balancehidrico/balancehidrico/datos/salida/'
 
 
 # Precipitación media (p)
@@ -343,7 +398,7 @@ entries.append(entry_12)
 
 
 # Cálculo de la suma anual
-calc_sum = QgsRasterCalculator('p@1 + p@2 + p@3 + p@4 + p@5 + p@6 + p@7 + p@8 + p@9 + p@10 + p@11 + p@12',
+calc_sum = QgsRasterCalculator(f'p@1 + p@2 + p@3 + p@4 + p@5 + p@6 + p@7 + p@8 + p@9 + p@10 + p@11 + p@12',
                                p_suma_fn, 
                                'GTiff', 
                                p_01.extent(), 
@@ -448,7 +503,7 @@ entries.append(entry_24)
 
 
 # Cálculo de la suma anual
-calc_sum = QgsRasterCalculator('etp@1 + etp@2 + etp@3 + etp@4 + etp@5 + etp@6 + etp@7 + etp@8 + etp@9 + etp@10 + etp@11 + etp@12',
+calc_sum = QgsRasterCalculator(f'etp@1 + etp@2 + etp@3 + etp@4 + etp@5 + etp@6 + etp@7 + etp@8 + etp@9 + etp@10 + etp@11 + etp@12',
                                etp_suma_fn, 
                                'GTiff', 
                                p_01.extent(), 
@@ -465,7 +520,7 @@ calc_sum.processCalculation()
 
 
 # Cálculos raster
-calc_ret_01 = QgsRasterCalculator('(p@1 <= 5) * 5 + (p@1 > 5) * ( (p@1*0.2 > 5) * p@1*0.2 + (p@1*0.2 <= 5) * 5  )',
+calc_ret_01 = QgsRasterCalculator(f'(p@1 <= 5) * 5 + (p@1 > 5) * ( (p@1*{LLU_RET} > 5) * p@1*{LLU_RET} + (p@1*{LLU_RET} <= 5) * 5  )',
                                   ret_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -474,7 +529,7 @@ calc_ret_01 = QgsRasterCalculator('(p@1 <= 5) * 5 + (p@1 > 5) * ( (p@1*0.2 > 5) 
                                   entries)
 calc_ret_01.processCalculation()
 
-calc_ret_02 = QgsRasterCalculator('(p@2 <= 5) * 5 + (p@2 > 5) * ( (p@2*0.2 > 5) * p@2*0.2 + (p@2*0.2 <= 5) * 5  )',
+calc_ret_02 = QgsRasterCalculator(f'(p@2 <= 5) * 5 + (p@2 > 5) * ( (p@2*{LLU_RET} > 5) * p@2*{LLU_RET} + (p@2*{LLU_RET} <= 5) * 5  )',
                                   ret_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -483,7 +538,7 @@ calc_ret_02 = QgsRasterCalculator('(p@2 <= 5) * 5 + (p@2 > 5) * ( (p@2*0.2 > 5) 
                                   entries)
 calc_ret_02.processCalculation()
 
-calc_ret_03 = QgsRasterCalculator('(p@3 <= 5) * 5 + (p@3 > 5) * ( (p@3*0.2 > 5) * p@3*0.2 + (p@3*0.2 <= 5) * 5  )',
+calc_ret_03 = QgsRasterCalculator(f'(p@3 <= 5) * 5 + (p@3 > 5) * ( (p@3*{LLU_RET} > 5) * p@3*{LLU_RET} + (p@3*{LLU_RET} <= 5) * 5  )',
                                   ret_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -492,7 +547,7 @@ calc_ret_03 = QgsRasterCalculator('(p@3 <= 5) * 5 + (p@3 > 5) * ( (p@3*0.2 > 5) 
                                   entries)
 calc_ret_03.processCalculation()
 
-calc_ret_04 = QgsRasterCalculator('(p@4 <= 5) * 5 + (p@4 > 5) * ( (p@4*0.2 > 5) * p@4*0.2 + (p@4*0.2 <= 5) * 5  )',
+calc_ret_04 = QgsRasterCalculator(f'(p@4 <= 5) * 5 + (p@4 > 5) * ( (p@4*{LLU_RET} > 5) * p@4*{LLU_RET} + (p@4*{LLU_RET} <= 5) * 5  )',
                                   ret_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -501,7 +556,7 @@ calc_ret_04 = QgsRasterCalculator('(p@4 <= 5) * 5 + (p@4 > 5) * ( (p@4*0.2 > 5) 
                                   entries)
 calc_ret_04.processCalculation()
 
-calc_ret_05 = QgsRasterCalculator('(p@5 <= 5) * 5 + (p@5 > 5) * ( (p@5*0.2 > 5) * p@5*0.2 + (p@5*0.2 <= 5) * 5  )',
+calc_ret_05 = QgsRasterCalculator(f'(p@5 <= 5) * 5 + (p@5 > 5) * ( (p@5*{LLU_RET} > 5) * p@5*{LLU_RET} + (p@5*{LLU_RET} <= 5) * 5  )',
                                   ret_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -510,7 +565,7 @@ calc_ret_05 = QgsRasterCalculator('(p@5 <= 5) * 5 + (p@5 > 5) * ( (p@5*0.2 > 5) 
                                   entries)
 calc_ret_05.processCalculation()
 
-calc_ret_06 = QgsRasterCalculator('(p@6 <= 5) * 5 + (p@6 > 5) * ( (p@6*0.2 > 5) * p@6*0.2 + (p@6*0.2 <= 5) * 5  )',
+calc_ret_06 = QgsRasterCalculator(f'(p@6 <= 5) * 5 + (p@6 > 5) * ( (p@6*{LLU_RET} > 5) * p@6*{LLU_RET} + (p@6*{LLU_RET} <= 5) * 5  )',
                                   ret_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -519,7 +574,7 @@ calc_ret_06 = QgsRasterCalculator('(p@6 <= 5) * 5 + (p@6 > 5) * ( (p@6*0.2 > 5) 
                                   entries)
 calc_ret_06.processCalculation()
 
-calc_ret_07 = QgsRasterCalculator('(p@7 <= 5) * 5 + (p@7 > 5) * ( (p@7*0.2 > 5) * p@7*0.2 + (p@7*0.2 <= 5) * 5  )',
+calc_ret_07 = QgsRasterCalculator(f'(p@7 <= 5) * 5 + (p@7 > 5) * ( (p@7*{LLU_RET} > 5) * p@7*{LLU_RET} + (p@7*{LLU_RET} <= 5) * 5  )',
                                   ret_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -528,7 +583,7 @@ calc_ret_07 = QgsRasterCalculator('(p@7 <= 5) * 5 + (p@7 > 5) * ( (p@7*0.2 > 5) 
                                   entries)
 calc_ret_07.processCalculation()
 
-calc_ret_08 = QgsRasterCalculator('(p@8 <= 5) * 5 + (p@8 > 5) * ( (p@8*0.2 > 5) * p@8*0.2 + (p@8*0.2 <= 5) * 5  )',
+calc_ret_08 = QgsRasterCalculator(f'(p@8 <= 5) * 5 + (p@8 > 5) * ( (p@8*{LLU_RET} > 5) * p@8*{LLU_RET} + (p@8*{LLU_RET} <= 5) * 5  )',
                                   ret_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -537,7 +592,7 @@ calc_ret_08 = QgsRasterCalculator('(p@8 <= 5) * 5 + (p@8 > 5) * ( (p@8*0.2 > 5) 
                                   entries)
 calc_ret_08.processCalculation()
 
-calc_ret_09 = QgsRasterCalculator('(p@9 <= 5) * 5 + (p@9 > 5) * ( (p@9*0.2 > 5) * p@9*0.2 + (p@9*0.2 <= 5) * 5  )',
+calc_ret_09 = QgsRasterCalculator(f'(p@9 <= 5) * 5 + (p@9 > 5) * ( (p@9*{LLU_RET} > 5) * p@9*{LLU_RET} + (p@9*{LLU_RET} <= 5) * 5  )',
                                   ret_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -546,7 +601,7 @@ calc_ret_09 = QgsRasterCalculator('(p@9 <= 5) * 5 + (p@9 > 5) * ( (p@9*0.2 > 5) 
                                   entries)
 calc_ret_09.processCalculation()
 
-calc_ret_10 = QgsRasterCalculator('(p@10 <= 5) * 5 + (p@10 > 5) * ( (p@10*0.2 > 5) * p@10*0.2 + (p@10*0.2 <= 5) * 5  )',
+calc_ret_10 = QgsRasterCalculator(f'(p@10 <= 5) * 5 + (p@10 > 5) * ( (p@10*{LLU_RET} > 5) * p@10*{LLU_RET} + (p@10*{LLU_RET} <= 5) * 5  )',
                                   ret_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -555,7 +610,7 @@ calc_ret_10 = QgsRasterCalculator('(p@10 <= 5) * 5 + (p@10 > 5) * ( (p@10*0.2 > 
                                   entries)
 calc_ret_10.processCalculation()
 
-calc_ret_11 = QgsRasterCalculator('(p@11 <= 5) * 5 + (p@11 > 5) * ( (p@11*0.2 > 5) * p@11*0.2 + (p@11*0.2 <= 5) * 5  )',
+calc_ret_11 = QgsRasterCalculator(f'(p@11 <= 5) * 5 + (p@11 > 5) * ( (p@11*{LLU_RET} > 5) * p@11*{LLU_RET} + (p@11*{LLU_RET} <= 5) * 5  )',
                                   ret_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -564,7 +619,7 @@ calc_ret_11 = QgsRasterCalculator('(p@11 <= 5) * 5 + (p@11 > 5) * ( (p@11*0.2 > 
                                   entries)
 calc_ret_11.processCalculation()
 
-calc_ret_12 = QgsRasterCalculator('(p@12 <= 5) * 5 + (p@12 > 5) * ( (p@12*0.2 > 5) * p@12*0.2 + (p@12*0.2 <= 5) * 5  )',
+calc_ret_12 = QgsRasterCalculator(f'(p@12 <= 5) * 5 + (p@12 > 5) * ( (p@12*{LLU_RET} > 5) * p@12*{LLU_RET} + (p@12*{LLU_RET} <= 5) * 5  )',
                                   ret_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -664,7 +719,7 @@ entries.append(entry_36)
 
 
 # Cálculo de la suma anual
-calc_sum = QgsRasterCalculator('ret@1 + ret@2 + ret@3 + ret@4 + ret@5 + ret@6 + ret@7 + ret@8 + ret@9 + ret@10 + ret@11 + ret@12',
+calc_sum = QgsRasterCalculator(f'ret@1 + ret@2 + ret@3 + ret@4 + ret@5 + ret@6 + ret@7 + ret@8 + ret@9 + ret@10 + ret@11 + ret@12',
                                ret_suma_fn, 
                                'GTiff', 
                                p_01.extent(), 
@@ -680,7 +735,7 @@ calc_sum.processCalculation()
 #
 
 # Cálculos raster
-calc_pi_01 = QgsRasterCalculator('(p@1 - ret@1) * 1',
+calc_pi_01 = QgsRasterCalculator(f'(p@1 - ret@1) * {I}',
                                   pi_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -689,7 +744,7 @@ calc_pi_01 = QgsRasterCalculator('(p@1 - ret@1) * 1',
                                   entries)
 calc_pi_01.processCalculation()
 
-calc_pi_02 = QgsRasterCalculator('(p@2 - ret@2) * 1',
+calc_pi_02 = QgsRasterCalculator(f'(p@2 - ret@2) * {I}',
                                   pi_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -698,7 +753,7 @@ calc_pi_02 = QgsRasterCalculator('(p@2 - ret@2) * 1',
                                   entries)
 calc_pi_02.processCalculation()
 
-calc_pi_03 = QgsRasterCalculator('(p@3 - ret@3) * 1',
+calc_pi_03 = QgsRasterCalculator(f'(p@3 - ret@3) * {I}',
                                   pi_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -707,7 +762,7 @@ calc_pi_03 = QgsRasterCalculator('(p@3 - ret@3) * 1',
                                   entries)
 calc_pi_03.processCalculation()
 
-calc_pi_04 = QgsRasterCalculator('(p@4 - ret@4) * 1',
+calc_pi_04 = QgsRasterCalculator(f'(p@4 - ret@4) * {I}',
                                   pi_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -716,7 +771,7 @@ calc_pi_04 = QgsRasterCalculator('(p@4 - ret@4) * 1',
                                   entries)
 calc_pi_04.processCalculation()
 
-calc_pi_05 = QgsRasterCalculator('(p@5 - ret@5) * 1',
+calc_pi_05 = QgsRasterCalculator(f'(p@5 - ret@5) * {I}',
                                   pi_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -725,7 +780,7 @@ calc_pi_05 = QgsRasterCalculator('(p@5 - ret@5) * 1',
                                   entries)
 calc_pi_05.processCalculation()
 
-calc_pi_06 = QgsRasterCalculator('(p@6 - ret@6) * 1',
+calc_pi_06 = QgsRasterCalculator(f'(p@6 - ret@6) * {I}',
                                   pi_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -734,7 +789,7 @@ calc_pi_06 = QgsRasterCalculator('(p@6 - ret@6) * 1',
                                   entries)
 calc_pi_06.processCalculation()
 
-calc_pi_07 = QgsRasterCalculator('(p@7 - ret@7) * 1',
+calc_pi_07 = QgsRasterCalculator(f'(p@7 - ret@7) * {I}',
                                   pi_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -743,7 +798,7 @@ calc_pi_07 = QgsRasterCalculator('(p@7 - ret@7) * 1',
                                   entries)
 calc_pi_07.processCalculation()
 
-calc_pi_08 = QgsRasterCalculator('(p@8 - ret@8) * 1',
+calc_pi_08 = QgsRasterCalculator(f'(p@8 - ret@8) * {I}',
                                   pi_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -752,7 +807,7 @@ calc_pi_08 = QgsRasterCalculator('(p@8 - ret@8) * 1',
                                   entries)
 calc_pi_08.processCalculation()
 
-calc_pi_09 = QgsRasterCalculator('(p@9 - ret@9) * 1',
+calc_pi_09 = QgsRasterCalculator(f'(p@9 - ret@9) * {I}',
                                   pi_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -761,7 +816,7 @@ calc_pi_09 = QgsRasterCalculator('(p@9 - ret@9) * 1',
                                   entries)
 calc_pi_09.processCalculation()
 
-calc_pi_10 = QgsRasterCalculator('(p@10 - ret@10) * 1',
+calc_pi_10 = QgsRasterCalculator(f'(p@10 - ret@10) * {I}',
                                   pi_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -770,7 +825,7 @@ calc_pi_10 = QgsRasterCalculator('(p@10 - ret@10) * 1',
                                   entries)
 calc_pi_10.processCalculation()
 
-calc_pi_11 = QgsRasterCalculator('(p@11 - ret@11) * 1',
+calc_pi_11 = QgsRasterCalculator(f'(p@11 - ret@11) * {I}',
                                   pi_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -779,7 +834,7 @@ calc_pi_11 = QgsRasterCalculator('(p@11 - ret@11) * 1',
                                   entries)
 calc_pi_11.processCalculation()
 
-calc_pi_12 = QgsRasterCalculator('(p@12 - ret@12) * 1',
+calc_pi_12 = QgsRasterCalculator(f'(p@12 - ret@12) * {I}',
                                   pi_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1112,7 +1167,7 @@ calc_sum.processCalculation()
 
 # hsi
 # Cálculos raster
-calc_hsi_11 = QgsRasterCalculator('(p@11 * 0) + 860',
+calc_hsi_11 = QgsRasterCalculator(f'(p@11 * 0) + {HSI}',
                                   hsi_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1134,7 +1189,7 @@ entries.append(entry_71)
 
 # c1
 # Cálculos raster
-calc_c1_11 = QgsRasterCalculator('((hsi@11 - 594.14 + pi@11)/499.37 < 1) * (hsi@11 - 594.14 + pi@11)/499.37 + ((hsi@11 - 594.14 + pi@11)/499.37 >= 1) * 1',
+calc_c1_11 = QgsRasterCalculator(f'((hsi@11 - {PM_MM} + pi@11)/{CC_PM_MM} < 1) * (hsi@11 - {PM_MM} + pi@11)/{CC_PM_MM} + ((hsi@11 - {PM_MM} + pi@11)/{CC_PM_MM} >= 1) * 1',
                                   c1_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1156,7 +1211,7 @@ entries.append(entry_83)
 
 # c2
 # Cálculos raster
-calc_c2_11 = QgsRasterCalculator('((hsi@11 - 594.14 + pi@11 - c1@11*etp@11)/499.37 > 1) * 1 + ((hsi@11 - 594.14 + pi@11 - c1@11*etp@11)/499.37 <= 1) * (  ((hsi@11 - 594.14 + pi@11 - c1@11*etp@11)/499.37 < 0) * 0 + ((hsi@11 - 594.14 + pi@11 - c1@11*etp@11)/499.37 >= 0) * (hsi@11 - 594.14 + pi@11 - c1@11*etp@11)/499.37  )',
+calc_c2_11 = QgsRasterCalculator(f'((hsi@11 - {PM_MM} + pi@11 - c1@11*etp@11)/{CC_PM_MM} > 1) * 1 + ((hsi@11 - {PM_MM} + pi@11 - c1@11*etp@11)/{CC_PM_MM} <= 1) * (  ((hsi@11 - {PM_MM} + pi@11 - c1@11*etp@11)/{CC_PM_MM} < 0) * 0 + ((hsi@11 - {PM_MM} + pi@11 - c1@11*etp@11)/{CC_PM_MM} >= 0) * (hsi@11 - {PM_MM} + pi@11 - c1@11*etp@11)/{CC_PM_MM}  )',
                                   c2_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1178,7 +1233,7 @@ entries.append(entry_95)
 
 # hd
 # Cálculos raster
-calc_hd_11 = QgsRasterCalculator('hsi@11 - 594.14 + pi@11',
+calc_hd_11 = QgsRasterCalculator(f'hsi@11 - {PM_MM} + pi@11',
                                   hd_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1200,7 +1255,7 @@ entries.append(entry_107)
 
 # etr
 # Cálculos raster
-calc_etr_11 = QgsRasterCalculator('(hd@11 >= (c1@11 + c2@11)/2*etp@11) * (c1@11 + c2@11)/2*etp@11 + (hd@11 < (c1@11 + c2@11)/2*etp@11) * hd@11',
+calc_etr_11 = QgsRasterCalculator(f'(hd@11 >= (c1@11 + c2@11)/2*etp@11) * (c1@11 + c2@11)/2*etp@11 + (hd@11 < (c1@11 + c2@11)/2*etp@11) * hd@11',
                                   etr_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1222,7 +1277,7 @@ entries.append(entry_119)
 
 # hsf
 # Cálculos raster
-calc_hsf_11 = QgsRasterCalculator('(hd@11 + 594.14 - etr@11 >= 1093.5) * 1093.5 + (hd@11 + 594.14 - etr@11 < 1093.5) * (hd@11 + 594.14 - etr@11)',
+calc_hsf_11 = QgsRasterCalculator(f'(hd@11 + {PM_MM} - etr@11 >= {CC_MM}) * {CC_MM} + (hd@11 + {PM_MM} - etr@11 < {CC_MM}) * (hd@11 + {PM_MM} - etr@11)',
                                   hsf_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1244,7 +1299,7 @@ entries.append(entry_131)
 
 # dcc
 # Cálculos raster
-calc_dcc_11 = QgsRasterCalculator('1093.5 - hsf@11',
+calc_dcc_11 = QgsRasterCalculator(f'{CC_MM} - hsf@11',
                                   dcc_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1266,7 +1321,7 @@ entries.append(entry_143)
 
 # rp
 # Cálculos raster
-calc_rp_11 = QgsRasterCalculator('pi@11 + hsi@11 - hsf@11 - etr@11',
+calc_rp_11 = QgsRasterCalculator(f'pi@11 + hsi@11 - hsf@11 - etr@11',
                                   rp_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1288,7 +1343,7 @@ entries.append(entry_155)
 
 # nr
 # Cálculos raster
-calc_nr_11 = QgsRasterCalculator('dcc@11 - etr@11 + etp@11',
+calc_nr_11 = QgsRasterCalculator(f'dcc@11 - etr@11 + etp@11',
                                   nr_11_fn, 
                                   'GTiff', 
                                   p_11.extent(), 
@@ -1316,7 +1371,7 @@ entries.append(entry_167)
 
 # hsi
 # Cálculos raster
-calc_hsi_12 = QgsRasterCalculator('hsf@11',
+calc_hsi_12 = QgsRasterCalculator(f'hsf@11',
                                   hsi_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1338,7 +1393,7 @@ entries.append(entry_72)
 
 # c1
 # Cálculos raster
-calc_c1_12 = QgsRasterCalculator('((hsi@12 - 594.14 + pi@12)/499.37 < 1) * (hsi@12 - 594.14 + pi@12)/499.37 + ((hsi@12 - 594.14 + pi@12)/499.37 >= 1) * 1',
+calc_c1_12 = QgsRasterCalculator(f'((hsi@12 - {PM_MM} + pi@12)/{CC_PM_MM} < 1) * (hsi@12 - {PM_MM} + pi@12)/{CC_PM_MM} + ((hsi@12 - {PM_MM} + pi@12)/{CC_PM_MM} >= 1) * 1',
                                   c1_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1360,7 +1415,7 @@ entries.append(entry_84)
 
 # c2
 # Cálculos raster
-calc_c2_12 = QgsRasterCalculator('((hsi@12 - 594.14 + pi@12 - c1@12*etp@12)/499.37 > 1) * 1 + ((hsi@12 - 594.14 + pi@12 - c1@12*etp@12)/499.37 <= 1) * (  ((hsi@12 - 594.14 + pi@12 - c1@12*etp@12)/499.37 < 0) * 0 + ((hsi@12 - 594.14 + pi@12 - c1@12*etp@12)/499.37 >= 0) * (hsi@12 - 594.14 + pi@12 - c1@12*etp@12)/499.37  )',
+calc_c2_12 = QgsRasterCalculator(f'((hsi@12 - {PM_MM} + pi@12 - c1@12*etp@12)/{CC_PM_MM} > 1) * 1 + ((hsi@12 - {PM_MM} + pi@12 - c1@12*etp@12)/{CC_PM_MM} <= 1) * (  ((hsi@12 - {PM_MM} + pi@12 - c1@12*etp@12)/{CC_PM_MM} < 0) * 0 + ((hsi@12 - {PM_MM} + pi@12 - c1@12*etp@12)/{CC_PM_MM} >= 0) * (hsi@12 - {PM_MM} + pi@12 - c1@12*etp@12)/{CC_PM_MM}  )',
                                   c2_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1382,7 +1437,7 @@ entries.append(entry_96)
 
 # hd
 # Cálculos raster
-calc_hd_12 = QgsRasterCalculator('hsi@12 - 594.14 + pi@12',
+calc_hd_12 = QgsRasterCalculator(f'hsi@12 - {PM_MM} + pi@12',
                                   hd_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1404,7 +1459,7 @@ entries.append(entry_108)
 
 # etr
 # Cálculos raster
-calc_etr_12 = QgsRasterCalculator('(hd@12 >= (c1@12 + c2@12)/2*etp@12) * (c1@12 + c2@12)/2*etp@12 + (hd@12 < (c1@12 + c2@12)/2*etp@12) * hd@12',
+calc_etr_12 = QgsRasterCalculator(f'(hd@12 >= (c1@12 + c2@12)/2*etp@12) * (c1@12 + c2@12)/2*etp@12 + (hd@12 < (c1@12 + c2@12)/2*etp@12) * hd@12',
                                   etr_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1426,7 +1481,7 @@ entries.append(entry_120)
 
 # hsf
 # Cálculos raster
-calc_hsf_12 = QgsRasterCalculator('(hd@12 + 594.14 - etr@12 >= 1093.5) * 1093.5 + (hd@12 + 594.14 - etr@12 < 1093.5) * (hd@12 + 594.14 - etr@12)',
+calc_hsf_12 = QgsRasterCalculator(f'(hd@12 + {PM_MM} - etr@12 >= {CC_MM}) * {CC_MM} + (hd@12 + {PM_MM} - etr@12 < {CC_MM}) * (hd@12 + {PM_MM} - etr@12)',
                                   hsf_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1448,7 +1503,7 @@ entries.append(entry_132)
 
 # dcc
 # Cálculos raster
-calc_dcc_12 = QgsRasterCalculator('1093.5 - hsf@12',
+calc_dcc_12 = QgsRasterCalculator(f'{CC_MM} - hsf@12',
                                   dcc_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1470,7 +1525,7 @@ entries.append(entry_144)
 
 # rp
 # Cálculos raster
-calc_rp_12 = QgsRasterCalculator('pi@12 + hsi@12 - hsf@12 - etr@12',
+calc_rp_12 = QgsRasterCalculator(f'pi@12 + hsi@12 - hsf@12 - etr@12',
                                   rp_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1492,7 +1547,7 @@ entries.append(entry_156)
 
 # nr
 # Cálculos raster
-calc_nr_12 = QgsRasterCalculator('dcc@12 - etr@12 + etp@12',
+calc_nr_12 = QgsRasterCalculator(f'dcc@12 - etr@12 + etp@12',
                                   nr_12_fn, 
                                   'GTiff', 
                                   p_12.extent(), 
@@ -1519,7 +1574,7 @@ entries.append(entry_168)
 
 # hsi
 # Cálculos raster
-calc_hsi_01 = QgsRasterCalculator('hsf@12',
+calc_hsi_01 = QgsRasterCalculator(f'hsf@12',
                                   hsi_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1541,7 +1596,7 @@ entries.append(entry_61)
 
 # c1
 # Cálculos raster
-calc_c1_01 = QgsRasterCalculator('((hsi@1 - 594.14 + pi@1)/499.37 < 1) * (hsi@1 - 594.14 + pi@1)/499.37 + ((hsi@1 - 594.14 + pi@1)/499.37 >= 1) * 1',
+calc_c1_01 = QgsRasterCalculator(f'((hsi@1 - {PM_MM} + pi@1)/{CC_PM_MM} < 1) * (hsi@1 - {PM_MM} + pi@1)/{CC_PM_MM} + ((hsi@1 - {PM_MM} + pi@1)/{CC_PM_MM} >= 1) * 1',
                                   c1_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1563,7 +1618,7 @@ entries.append(entry_73)
 
 # c2
 # Cálculos raster
-calc_c2_01 = QgsRasterCalculator('((hsi@1 - 594.14 + pi@1 - c1@1*etp@1)/499.37 > 1) * 1 + ((hsi@1 - 594.14 + pi@1 - c1@1*etp@1)/499.37 <= 1) * (  ((hsi@1 - 594.14 + pi@1 - c1@1*etp@1)/499.37 < 0) * 0 + ((hsi@1 - 594.14 + pi@1 - c1@1*etp@1)/499.37 >= 0) * (hsi@1 - 594.14 + pi@1 - c1@1*etp@1)/499.37  )',
+calc_c2_01 = QgsRasterCalculator(f'((hsi@1 - {PM_MM} + pi@1 - c1@1*etp@1)/{CC_PM_MM} > 1) * 1 + ((hsi@1 - {PM_MM} + pi@1 - c1@1*etp@1)/{CC_PM_MM} <= 1) * (  ((hsi@1 - {PM_MM} + pi@1 - c1@1*etp@1)/{CC_PM_MM} < 0) * 0 + ((hsi@1 - {PM_MM} + pi@1 - c1@1*etp@1)/{CC_PM_MM} >= 0) * (hsi@1 - {PM_MM} + pi@1 - c1@1*etp@1)/{CC_PM_MM}  )',
                                   c2_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1585,7 +1640,7 @@ entries.append(entry_85)
 
 # hd
 # Cálculos raster
-calc_hd_01 = QgsRasterCalculator('hsi@1 - 594.14 + pi@1',
+calc_hd_01 = QgsRasterCalculator(f'hsi@1 - {PM_MM} + pi@1',
                                   hd_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1607,7 +1662,7 @@ entries.append(entry_97)
 
 # etr
 # Cálculos raster
-calc_etr_01 = QgsRasterCalculator('(hd@1 >= (c1@1 + c2@1)/2*etp@1) * (c1@1 + c2@1)/2*etp@1 + (hd@1 < (c1@1 + c2@1)/2*etp@1) * hd@1',
+calc_etr_01 = QgsRasterCalculator(f'(hd@1 >= (c1@1 + c2@1)/2*etp@1) * (c1@1 + c2@1)/2*etp@1 + (hd@1 < (c1@1 + c2@1)/2*etp@1) * hd@1',
                                   etr_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1629,7 +1684,7 @@ entries.append(entry_109)
 
 # hsf
 # Cálculos raster
-calc_hsf_01 = QgsRasterCalculator('(hd@1 + 594.14 - etr@1 >= 1093.5) * 1093.5 + (hd@1 + 594.14 - etr@1 < 1093.5) * (hd@1 + 594.14 - etr@1)',
+calc_hsf_01 = QgsRasterCalculator(f'(hd@1 + {PM_MM} - etr@1 >= {CC_MM}) * {CC_MM} + (hd@1 + {PM_MM} - etr@1 < {CC_MM}) * (hd@1 + {PM_MM} - etr@1)',
                                   hsf_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1651,7 +1706,7 @@ entries.append(entry_121)
 
 # dcc
 # Cálculos raster
-calc_dcc_01 = QgsRasterCalculator('1093.5 - hsf@1',
+calc_dcc_01 = QgsRasterCalculator(f'{CC_MM} - hsf@1',
                                   dcc_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1673,7 +1728,7 @@ entries.append(entry_133)
 
 # rp
 # Cálculos raster
-calc_rp_01 = QgsRasterCalculator('pi@1 + hsi@1 - hsf@1 - etr@1',
+calc_rp_01 = QgsRasterCalculator(f'pi@1 + hsi@1 - hsf@1 - etr@1',
                                   rp_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1695,7 +1750,7 @@ entries.append(entry_145)
 
 # nr
 # Cálculos raster
-calc_nr_01 = QgsRasterCalculator('dcc@1 - etr@1 + etp@1',
+calc_nr_01 = QgsRasterCalculator(f'dcc@1 - etr@1 + etp@1',
                                   nr_01_fn, 
                                   'GTiff', 
                                   p_01.extent(), 
@@ -1722,7 +1777,7 @@ entries.append(entry_157)
 
 # hsi
 # Cálculos raster
-calc_hsi_02 = QgsRasterCalculator('hsf@1',
+calc_hsi_02 = QgsRasterCalculator(f'hsf@1',
                                   hsi_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1744,7 +1799,7 @@ entries.append(entry_62)
 
 # c1
 # Cálculos raster
-calc_c1_02 = QgsRasterCalculator('((hsi@2 - 594.14 + pi@2)/499.37 < 1) * (hsi@2 - 594.14 + pi@2)/499.37 + ((hsi@2 - 594.14 + pi@2)/499.37 >= 1) * 1',
+calc_c1_02 = QgsRasterCalculator(f'((hsi@2 - {PM_MM} + pi@2)/{CC_PM_MM} < 1) * (hsi@2 - {PM_MM} + pi@2)/{CC_PM_MM} + ((hsi@2 - {PM_MM} + pi@2)/{CC_PM_MM} >= 1) * 1',
                                   c1_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1766,7 +1821,7 @@ entries.append(entry_74)
 
 # c2
 # Cálculos raster
-calc_c2_02 = QgsRasterCalculator('((hsi@2 - 594.14 + pi@2 - c1@2*etp@2)/499.37 > 1) * 1 + ((hsi@2 - 594.14 + pi@2 - c1@2*etp@2)/499.37 <= 1) * (  ((hsi@2 - 594.14 + pi@2 - c1@2*etp@2)/499.37 < 0) * 0 + ((hsi@2 - 594.14 + pi@2 - c1@2*etp@2)/499.37 >= 0) * (hsi@2 - 594.14 + pi@2 - c1@2*etp@2)/499.37  )',
+calc_c2_02 = QgsRasterCalculator(f'((hsi@2 - {PM_MM} + pi@2 - c1@2*etp@2)/{CC_PM_MM} > 1) * 1 + ((hsi@2 - {PM_MM} + pi@2 - c1@2*etp@2)/{CC_PM_MM} <= 1) * (  ((hsi@2 - {PM_MM} + pi@2 - c1@2*etp@2)/{CC_PM_MM} < 0) * 0 + ((hsi@2 - {PM_MM} + pi@2 - c1@2*etp@2)/{CC_PM_MM} >= 0) * (hsi@2 - {PM_MM} + pi@2 - c1@2*etp@2)/{CC_PM_MM}  )',
                                   c2_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1788,7 +1843,7 @@ entries.append(entry_86)
 
 # hd
 # Cálculos raster
-calc_hd_02 = QgsRasterCalculator('hsi@2 - 594.14 + pi@2',
+calc_hd_02 = QgsRasterCalculator(f'hsi@2 - {PM_MM} + pi@2',
                                   hd_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1810,7 +1865,7 @@ entries.append(entry_98)
 
 # etr
 # Cálculos raster
-calc_etr_02 = QgsRasterCalculator('(hd@2 >= (c1@2 + c2@2)/2*etp@2) * (c1@2 + c2@2)/2*etp@2 + (hd@2 < (c1@2 + c2@2)/2*etp@2) * hd@2',
+calc_etr_02 = QgsRasterCalculator(f'(hd@2 >= (c1@2 + c2@2)/2*etp@2) * (c1@2 + c2@2)/2*etp@2 + (hd@2 < (c1@2 + c2@2)/2*etp@2) * hd@2',
                                   etr_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1832,7 +1887,7 @@ entries.append(entry_110)
 
 # hsf
 # Cálculos raster
-calc_hsf_02 = QgsRasterCalculator('(hd@2 + 594.14 - etr@2 >= 1093.5) * 1093.5 + (hd@2 + 594.14 - etr@2 < 1093.5) * (hd@2 + 594.14 - etr@2)',
+calc_hsf_02 = QgsRasterCalculator(f'(hd@2 + {PM_MM} - etr@2 >= {CC_MM}) * {CC_MM} + (hd@2 + {PM_MM} - etr@2 < {CC_MM}) * (hd@2 + {PM_MM} - etr@2)',
                                   hsf_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1854,7 +1909,7 @@ entries.append(entry_122)
 
 # dcc
 # Cálculos raster
-calc_dcc_02 = QgsRasterCalculator('1093.5 - hsf@2',
+calc_dcc_02 = QgsRasterCalculator(f'{CC_MM} - hsf@2',
                                   dcc_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1876,7 +1931,7 @@ entries.append(entry_134)
 
 # rp
 # Cálculos raster
-calc_rp_02 = QgsRasterCalculator('pi@2 + hsi@2 - hsf@2 - etr@2',
+calc_rp_02 = QgsRasterCalculator(f'pi@2 + hsi@2 - hsf@2 - etr@2',
                                   rp_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1898,7 +1953,7 @@ entries.append(entry_146)
 
 # nr
 # Cálculos raster
-calc_nr_02 = QgsRasterCalculator('dcc@2 - etr@2 + etp@2',
+calc_nr_02 = QgsRasterCalculator(f'dcc@2 - etr@2 + etp@2',
                                   nr_02_fn, 
                                   'GTiff', 
                                   p_02.extent(), 
@@ -1925,7 +1980,7 @@ entries.append(entry_158)
 
 # hsi
 # Cálculos raster
-calc_hsi_03 = QgsRasterCalculator('hsf@2',
+calc_hsi_03 = QgsRasterCalculator(f'hsf@2',
                                   hsi_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -1947,7 +2002,7 @@ entries.append(entry_63)
 
 # c1
 # Cálculos raster
-calc_c1_03 = QgsRasterCalculator('((hsi@3 - 594.14 + pi@3)/499.37 < 1) * (hsi@3 - 594.14 + pi@3)/499.37 + ((hsi@3 - 594.14 + pi@3)/499.37 >= 1) * 1',
+calc_c1_03 = QgsRasterCalculator(f'((hsi@3 - {PM_MM} + pi@3)/{CC_PM_MM} < 1) * (hsi@3 - {PM_MM} + pi@3)/{CC_PM_MM} + ((hsi@3 - {PM_MM} + pi@3)/{CC_PM_MM} >= 1) * 1',
                                   c1_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -1969,7 +2024,7 @@ entries.append(entry_75)
 
 # c2
 # Cálculos raster
-calc_c2_03 = QgsRasterCalculator('((hsi@3 - 594.14 + pi@3 - c1@3*etp@3)/499.37 > 1) * 1 + ((hsi@3 - 594.14 + pi@3 - c1@3*etp@3)/499.37 <= 1) * (  ((hsi@3 - 594.14 + pi@3 - c1@3*etp@3)/499.37 < 0) * 0 + ((hsi@3 - 594.14 + pi@3 - c1@3*etp@3)/499.37 >= 0) * (hsi@3 - 594.14 + pi@3 - c1@3*etp@3)/499.37  )',
+calc_c2_03 = QgsRasterCalculator(f'((hsi@3 - {PM_MM} + pi@3 - c1@3*etp@3)/{CC_PM_MM} > 1) * 1 + ((hsi@3 - {PM_MM} + pi@3 - c1@3*etp@3)/{CC_PM_MM} <= 1) * (  ((hsi@3 - {PM_MM} + pi@3 - c1@3*etp@3)/{CC_PM_MM} < 0) * 0 + ((hsi@3 - {PM_MM} + pi@3 - c1@3*etp@3)/{CC_PM_MM} >= 0) * (hsi@3 - {PM_MM} + pi@3 - c1@3*etp@3)/{CC_PM_MM}  )',
                                   c2_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -1991,7 +2046,7 @@ entries.append(entry_87)
 
 # hd
 # Cálculos raster
-calc_hd_03 = QgsRasterCalculator('hsi@3 - 594.14 + pi@3',
+calc_hd_03 = QgsRasterCalculator(f'hsi@3 - {PM_MM} + pi@3',
                                   hd_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2013,7 +2068,7 @@ entries.append(entry_99)
 
 # etr
 # Cálculos raster
-calc_etr_03 = QgsRasterCalculator('(hd@3 >= (c1@3 + c2@3)/2*etp@3) * (c1@3 + c2@3)/2*etp@3 + (hd@3 < (c1@3 + c2@3)/2*etp@3) * hd@3',
+calc_etr_03 = QgsRasterCalculator(f'(hd@3 >= (c1@3 + c2@3)/2*etp@3) * (c1@3 + c2@3)/2*etp@3 + (hd@3 < (c1@3 + c2@3)/2*etp@3) * hd@3',
                                   etr_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2035,7 +2090,7 @@ entries.append(entry_111)
 
 # hsf
 # Cálculos raster
-calc_hsf_03 = QgsRasterCalculator('(hd@3 + 594.14 - etr@3 >= 1093.5) * 1093.5 + (hd@3 + 594.14 - etr@3 < 1093.5) * (hd@3 + 594.14 - etr@3)',
+calc_hsf_03 = QgsRasterCalculator(f'(hd@3 + {PM_MM} - etr@3 >= {CC_MM}) * {CC_MM} + (hd@3 + {PM_MM} - etr@3 < {CC_MM}) * (hd@3 + {PM_MM} - etr@3)',
                                   hsf_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2057,7 +2112,7 @@ entries.append(entry_123)
 
 # dcc
 # Cálculos raster
-calc_dcc_03 = QgsRasterCalculator('1093.5 - hsf@3',
+calc_dcc_03 = QgsRasterCalculator(f'{CC_MM} - hsf@3',
                                   dcc_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2079,7 +2134,7 @@ entries.append(entry_135)
 
 # rp
 # Cálculos raster
-calc_rp_03 = QgsRasterCalculator('pi@3 + hsi@3 - hsf@3 - etr@3',
+calc_rp_03 = QgsRasterCalculator(f'pi@3 + hsi@3 - hsf@3 - etr@3',
                                   rp_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2101,7 +2156,7 @@ entries.append(entry_147)
 
 # nr
 # Cálculos raster
-calc_nr_03 = QgsRasterCalculator('dcc@3 - etr@3 + etp@3',
+calc_nr_03 = QgsRasterCalculator(f'dcc@3 - etr@3 + etp@3',
                                   nr_03_fn, 
                                   'GTiff', 
                                   p_03.extent(), 
@@ -2128,7 +2183,7 @@ entries.append(entry_159)
 
 # hsi
 # Cálculos raster
-calc_hsi_04 = QgsRasterCalculator('hsf@3',
+calc_hsi_04 = QgsRasterCalculator(f'hsf@3',
                                   hsi_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2150,7 +2205,7 @@ entries.append(entry_64)
 
 # c1
 # Cálculos raster
-calc_c1_04 = QgsRasterCalculator('((hsi@4 - 594.14 + pi@4)/499.37 < 1) * (hsi@4 - 594.14 + pi@4)/499.37 + ((hsi@4 - 594.14 + pi@4)/499.37 >= 1) * 1',
+calc_c1_04 = QgsRasterCalculator(f'((hsi@4 - {PM_MM} + pi@4)/{CC_PM_MM} < 1) * (hsi@4 - {PM_MM} + pi@4)/{CC_PM_MM} + ((hsi@4 - {PM_MM} + pi@4)/{CC_PM_MM} >= 1) * 1',
                                   c1_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2172,7 +2227,7 @@ entries.append(entry_76)
 
 # c2
 # Cálculos raster
-calc_c2_04 = QgsRasterCalculator('((hsi@4 - 594.14 + pi@4 - c1@4*etp@4)/499.37 > 1) * 1 + ((hsi@4 - 594.14 + pi@4 - c1@4*etp@4)/499.37 <= 1) * (  ((hsi@4 - 594.14 + pi@4 - c1@4*etp@4)/499.37 < 0) * 0 + ((hsi@4 - 594.14 + pi@4 - c1@4*etp@4)/499.37 >= 0) * (hsi@4 - 594.14 + pi@4 - c1@4*etp@4)/499.37  )',
+calc_c2_04 = QgsRasterCalculator(f'((hsi@4 - {PM_MM} + pi@4 - c1@4*etp@4)/{CC_PM_MM} > 1) * 1 + ((hsi@4 - {PM_MM} + pi@4 - c1@4*etp@4)/{CC_PM_MM} <= 1) * (  ((hsi@4 - {PM_MM} + pi@4 - c1@4*etp@4)/{CC_PM_MM} < 0) * 0 + ((hsi@4 - {PM_MM} + pi@4 - c1@4*etp@4)/{CC_PM_MM} >= 0) * (hsi@4 - {PM_MM} + pi@4 - c1@4*etp@4)/{CC_PM_MM}  )',
                                   c2_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2194,7 +2249,7 @@ entries.append(entry_88)
 
 # hd
 # Cálculos raster
-calc_hd_04 = QgsRasterCalculator('hsi@4 - 594.14 + pi@4',
+calc_hd_04 = QgsRasterCalculator(f'hsi@4 - {PM_MM} + pi@4',
                                   hd_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2216,7 +2271,7 @@ entries.append(entry_100)
 
 # etr
 # Cálculos raster
-calc_etr_04 = QgsRasterCalculator('(hd@4 >= (c1@4 + c2@4)/2*etp@4) * (c1@4 + c2@4)/2*etp@4 + (hd@4 < (c1@4 + c2@4)/2*etp@4) * hd@4',
+calc_etr_04 = QgsRasterCalculator(f'(hd@4 >= (c1@4 + c2@4)/2*etp@4) * (c1@4 + c2@4)/2*etp@4 + (hd@4 < (c1@4 + c2@4)/2*etp@4) * hd@4',
                                   etr_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2238,7 +2293,7 @@ entries.append(entry_112)
 
 # hsf
 # Cálculos raster
-calc_hsf_04 = QgsRasterCalculator('(hd@4 + 594.14 - etr@4 >= 1093.5) * 1093.5 + (hd@4 + 594.14 - etr@4 < 1093.5) * (hd@4 + 594.14 - etr@4)',
+calc_hsf_04 = QgsRasterCalculator(f'(hd@4 + {PM_MM} - etr@4 >= {CC_MM}) * {CC_MM} + (hd@4 + {PM_MM} - etr@4 < {CC_MM}) * (hd@4 + {PM_MM} - etr@4)',
                                   hsf_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2260,7 +2315,7 @@ entries.append(entry_124)
 
 # dcc
 # Cálculos raster
-calc_dcc_04 = QgsRasterCalculator('1093.5 - hsf@4',
+calc_dcc_04 = QgsRasterCalculator(f'{CC_MM} - hsf@4',
                                   dcc_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2282,7 +2337,7 @@ entries.append(entry_136)
 
 # rp
 # Cálculos raster
-calc_rp_04 = QgsRasterCalculator('pi@4 + hsi@4 - hsf@4 - etr@4',
+calc_rp_04 = QgsRasterCalculator(f'pi@4 + hsi@4 - hsf@4 - etr@4',
                                   rp_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2304,7 +2359,7 @@ entries.append(entry_148)
 
 # nr
 # Cálculos raster
-calc_nr_04 = QgsRasterCalculator('dcc@4 - etr@4 + etp@4',
+calc_nr_04 = QgsRasterCalculator(f'dcc@4 - etr@4 + etp@4',
                                   nr_04_fn, 
                                   'GTiff', 
                                   p_04.extent(), 
@@ -2331,7 +2386,7 @@ entries.append(entry_160)
 
 # hsi
 # Cálculos raster
-calc_hsi_05 = QgsRasterCalculator('hsf@4',
+calc_hsi_05 = QgsRasterCalculator(f'hsf@4',
                                   hsi_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2353,7 +2408,7 @@ entries.append(entry_65)
 
 # c1
 # Cálculos raster
-calc_c1_05 = QgsRasterCalculator('((hsi@5 - 594.14 + pi@5)/499.37 < 1) * (hsi@5 - 594.14 + pi@5)/499.37 + ((hsi@5 - 594.14 + pi@5)/499.37 >= 1) * 1',
+calc_c1_05 = QgsRasterCalculator(f'((hsi@5 - {PM_MM} + pi@5)/{CC_PM_MM} < 1) * (hsi@5 - {PM_MM} + pi@5)/{CC_PM_MM} + ((hsi@5 - {PM_MM} + pi@5)/{CC_PM_MM} >= 1) * 1',
                                   c1_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2375,7 +2430,7 @@ entries.append(entry_77)
 
 # c2
 # Cálculos raster
-calc_c2_05 = QgsRasterCalculator('((hsi@5 - 594.14 + pi@5 - c1@5*etp@5)/499.37 > 1) * 1 + ((hsi@5 - 594.14 + pi@5 - c1@5*etp@5)/499.37 <= 1) * (  ((hsi@5 - 594.14 + pi@5 - c1@5*etp@5)/499.37 < 0) * 0 + ((hsi@5 - 594.14 + pi@5 - c1@5*etp@5)/499.37 >= 0) * (hsi@5 - 594.14 + pi@5 - c1@5*etp@5)/499.37  )',
+calc_c2_05 = QgsRasterCalculator(f'((hsi@5 - {PM_MM} + pi@5 - c1@5*etp@5)/{CC_PM_MM} > 1) * 1 + ((hsi@5 - {PM_MM} + pi@5 - c1@5*etp@5)/{CC_PM_MM} <= 1) * (  ((hsi@5 - {PM_MM} + pi@5 - c1@5*etp@5)/{CC_PM_MM} < 0) * 0 + ((hsi@5 - {PM_MM} + pi@5 - c1@5*etp@5)/{CC_PM_MM} >= 0) * (hsi@5 - {PM_MM} + pi@5 - c1@5*etp@5)/{CC_PM_MM}  )',
                                   c2_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2397,7 +2452,7 @@ entries.append(entry_89)
 
 # hd
 # Cálculos raster
-calc_hd_05 = QgsRasterCalculator('hsi@5 - 594.14 + pi@5',
+calc_hd_05 = QgsRasterCalculator(f'hsi@5 - {PM_MM} + pi@5',
                                   hd_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2419,7 +2474,7 @@ entries.append(entry_101)
 
 # etr
 # Cálculos raster
-calc_etr_05 = QgsRasterCalculator('(hd@5 >= (c1@5 + c2@5)/2*etp@5) * (c1@5 + c2@5)/2*etp@5 + (hd@5 < (c1@5 + c2@5)/2*etp@5) * hd@5',
+calc_etr_05 = QgsRasterCalculator(f'(hd@5 >= (c1@5 + c2@5)/2*etp@5) * (c1@5 + c2@5)/2*etp@5 + (hd@5 < (c1@5 + c2@5)/2*etp@5) * hd@5',
                                   etr_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2441,7 +2496,7 @@ entries.append(entry_113)
 
 # hsf
 # Cálculos raster
-calc_hsf_05 = QgsRasterCalculator('(hd@5 + 594.14 - etr@5 >= 1093.5) * 1093.5 + (hd@5 + 594.14 - etr@5 < 1093.5) * (hd@5 + 594.14 - etr@5)',
+calc_hsf_05 = QgsRasterCalculator(f'(hd@5 + {PM_MM} - etr@5 >= {CC_MM}) * {CC_MM} + (hd@5 + {PM_MM} - etr@5 < {CC_MM}) * (hd@5 + {PM_MM} - etr@5)',
                                   hsf_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2463,7 +2518,7 @@ entries.append(entry_125)
 
 # dcc
 # Cálculos raster
-calc_dcc_05 = QgsRasterCalculator('1093.5 - hsf@5',
+calc_dcc_05 = QgsRasterCalculator(f'{CC_MM} - hsf@5',
                                   dcc_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2485,7 +2540,7 @@ entries.append(entry_137)
 
 # rp
 # Cálculos raster
-calc_rp_05 = QgsRasterCalculator('pi@5 + hsi@5 - hsf@5 - etr@5',
+calc_rp_05 = QgsRasterCalculator(f'pi@5 + hsi@5 - hsf@5 - etr@5',
                                   rp_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2507,7 +2562,7 @@ entries.append(entry_149)
 
 # nr
 # Cálculos raster
-calc_nr_05 = QgsRasterCalculator('dcc@5 - etr@5 + etp@5',
+calc_nr_05 = QgsRasterCalculator(f'dcc@5 - etr@5 + etp@5',
                                   nr_05_fn, 
                                   'GTiff', 
                                   p_05.extent(), 
@@ -2534,7 +2589,7 @@ entries.append(entry_161)
 
 # hsi
 # Cálculos raster
-calc_hsi_06 = QgsRasterCalculator('hsf@5',
+calc_hsi_06 = QgsRasterCalculator(f'hsf@5',
                                   hsi_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2556,7 +2611,7 @@ entries.append(entry_66)
 
 # c1
 # Cálculos raster
-calc_c1_06 = QgsRasterCalculator('((hsi@6 - 594.14 + pi@6)/499.37 < 1) * (hsi@6 - 594.14 + pi@6)/499.37 + ((hsi@6 - 594.14 + pi@6)/499.37 >= 1) * 1',
+calc_c1_06 = QgsRasterCalculator(f'((hsi@6 - {PM_MM} + pi@6)/{CC_PM_MM} < 1) * (hsi@6 - {PM_MM} + pi@6)/{CC_PM_MM} + ((hsi@6 - {PM_MM} + pi@6)/{CC_PM_MM} >= 1) * 1',
                                   c1_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2578,7 +2633,7 @@ entries.append(entry_78)
 
 # c2
 # Cálculos raster
-calc_c2_06 = QgsRasterCalculator('((hsi@6 - 594.14 + pi@6 - c1@6*etp@6)/499.37 > 1) * 1 + ((hsi@6 - 594.14 + pi@6 - c1@6*etp@6)/499.37 <= 1) * (  ((hsi@6 - 594.14 + pi@6 - c1@6*etp@6)/499.37 < 0) * 0 + ((hsi@6 - 594.14 + pi@6 - c1@6*etp@6)/499.37 >= 0) * (hsi@6 - 594.14 + pi@6 - c1@6*etp@6)/499.37  )',
+calc_c2_06 = QgsRasterCalculator(f'((hsi@6 - {PM_MM} + pi@6 - c1@6*etp@6)/{CC_PM_MM} > 1) * 1 + ((hsi@6 - {PM_MM} + pi@6 - c1@6*etp@6)/{CC_PM_MM} <= 1) * (  ((hsi@6 - {PM_MM} + pi@6 - c1@6*etp@6)/{CC_PM_MM} < 0) * 0 + ((hsi@6 - {PM_MM} + pi@6 - c1@6*etp@6)/{CC_PM_MM} >= 0) * (hsi@6 - {PM_MM} + pi@6 - c1@6*etp@6)/{CC_PM_MM}  )',
                                   c2_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2600,7 +2655,7 @@ entries.append(entry_90)
 
 # hd
 # Cálculos raster
-calc_hd_06 = QgsRasterCalculator('hsi@6 - 594.14 + pi@6',
+calc_hd_06 = QgsRasterCalculator(f'hsi@6 - {PM_MM} + pi@6',
                                   hd_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2622,7 +2677,7 @@ entries.append(entry_102)
 
 # etr
 # Cálculos raster
-calc_etr_06 = QgsRasterCalculator('(hd@6 >= (c1@6 + c2@6)/2*etp@6) * (c1@6 + c2@6)/2*etp@6 + (hd@6 < (c1@6 + c2@6)/2*etp@6) * hd@6',
+calc_etr_06 = QgsRasterCalculator(f'(hd@6 >= (c1@6 + c2@6)/2*etp@6) * (c1@6 + c2@6)/2*etp@6 + (hd@6 < (c1@6 + c2@6)/2*etp@6) * hd@6',
                                   etr_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2644,7 +2699,7 @@ entries.append(entry_114)
 
 # hsf
 # Cálculos raster
-calc_hsf_06 = QgsRasterCalculator('(hd@6 + 594.14 - etr@6 >= 1093.5) * 1093.5 + (hd@6 + 594.14 - etr@6 < 1093.5) * (hd@6 + 594.14 - etr@6)',
+calc_hsf_06 = QgsRasterCalculator(f'(hd@6 + {PM_MM} - etr@6 >= {CC_MM}) * {CC_MM} + (hd@6 + {PM_MM} - etr@6 < {CC_MM}) * (hd@6 + {PM_MM} - etr@6)',
                                   hsf_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2666,7 +2721,7 @@ entries.append(entry_126)
 
 # dcc
 # Cálculos raster
-calc_dcc_06 = QgsRasterCalculator('1093.5 - hsf@6',
+calc_dcc_06 = QgsRasterCalculator(f'{CC_MM} - hsf@6',
                                   dcc_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2688,7 +2743,7 @@ entries.append(entry_138)
 
 # rp
 # Cálculos raster
-calc_rp_06 = QgsRasterCalculator('pi@6 + hsi@6 - hsf@6 - etr@6',
+calc_rp_06 = QgsRasterCalculator(f'pi@6 + hsi@6 - hsf@6 - etr@6',
                                   rp_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2710,7 +2765,7 @@ entries.append(entry_150)
 
 # nr
 # Cálculos raster
-calc_nr_06 = QgsRasterCalculator('dcc@6 - etr@6 + etp@6',
+calc_nr_06 = QgsRasterCalculator(f'dcc@6 - etr@6 + etp@6',
                                   nr_06_fn, 
                                   'GTiff', 
                                   p_06.extent(), 
@@ -2737,7 +2792,7 @@ entries.append(entry_162)
 
 # hsi
 # Cálculos raster
-calc_hsi_07 = QgsRasterCalculator('hsf@6',
+calc_hsi_07 = QgsRasterCalculator(f'hsf@6',
                                   hsi_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2759,7 +2814,7 @@ entries.append(entry_67)
 
 # c1
 # Cálculos raster
-calc_c1_07 = QgsRasterCalculator('((hsi@7 - 594.14 + pi@7)/499.37 < 1) * (hsi@7 - 594.14 + pi@7)/499.37 + ((hsi@7 - 594.14 + pi@7)/499.37 >= 1) * 1',
+calc_c1_07 = QgsRasterCalculator(f'((hsi@7 - {PM_MM} + pi@7)/{CC_PM_MM} < 1) * (hsi@7 - {PM_MM} + pi@7)/{CC_PM_MM} + ((hsi@7 - {PM_MM} + pi@7)/{CC_PM_MM} >= 1) * 1',
                                   c1_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2781,7 +2836,7 @@ entries.append(entry_79)
 
 # c2
 # Cálculos raster
-calc_c2_07 = QgsRasterCalculator('((hsi@7 - 594.14 + pi@7 - c1@7*etp@7)/499.37 > 1) * 1 + ((hsi@7 - 594.14 + pi@7 - c1@7*etp@7)/499.37 <= 1) * (  ((hsi@7 - 594.14 + pi@7 - c1@7*etp@7)/499.37 < 0) * 0 + ((hsi@7 - 594.14 + pi@7 - c1@7*etp@7)/499.37 >= 0) * (hsi@7 - 594.14 + pi@7 - c1@7*etp@7)/499.37  )',
+calc_c2_07 = QgsRasterCalculator(f'((hsi@7 - {PM_MM} + pi@7 - c1@7*etp@7)/{CC_PM_MM} > 1) * 1 + ((hsi@7 - {PM_MM} + pi@7 - c1@7*etp@7)/{CC_PM_MM} <= 1) * (  ((hsi@7 - {PM_MM} + pi@7 - c1@7*etp@7)/{CC_PM_MM} < 0) * 0 + ((hsi@7 - {PM_MM} + pi@7 - c1@7*etp@7)/{CC_PM_MM} >= 0) * (hsi@7 - {PM_MM} + pi@7 - c1@7*etp@7)/{CC_PM_MM}  )',
                                   c2_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2803,7 +2858,7 @@ entries.append(entry_91)
 
 # hd
 # Cálculos raster
-calc_hd_07 = QgsRasterCalculator('hsi@7 - 594.14 + pi@7',
+calc_hd_07 = QgsRasterCalculator(f'hsi@7 - {PM_MM} + pi@7',
                                   hd_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2825,7 +2880,7 @@ entries.append(entry_103)
 
 # etr
 # Cálculos raster
-calc_etr_07 = QgsRasterCalculator('(hd@7 >= (c1@7 + c2@7)/2*etp@7) * (c1@7 + c2@7)/2*etp@7 + (hd@7 < (c1@7 + c2@7)/2*etp@7) * hd@7',
+calc_etr_07 = QgsRasterCalculator(f'(hd@7 >= (c1@7 + c2@7)/2*etp@7) * (c1@7 + c2@7)/2*etp@7 + (hd@7 < (c1@7 + c2@7)/2*etp@7) * hd@7',
                                   etr_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2847,7 +2902,7 @@ entries.append(entry_115)
 
 # hsf
 # Cálculos raster
-calc_hsf_07 = QgsRasterCalculator('(hd@7 + 594.14 - etr@7 >= 1093.5) * 1093.5 + (hd@7 + 594.14 - etr@7 < 1093.5) * (hd@7 + 594.14 - etr@7)',
+calc_hsf_07 = QgsRasterCalculator(f'(hd@7 + {PM_MM} - etr@7 >= {CC_MM}) * {CC_MM} + (hd@7 + {PM_MM} - etr@7 < {CC_MM}) * (hd@7 + {PM_MM} - etr@7)',
                                   hsf_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2869,7 +2924,7 @@ entries.append(entry_127)
 
 # dcc
 # Cálculos raster
-calc_dcc_07 = QgsRasterCalculator('1093.5 - hsf@7',
+calc_dcc_07 = QgsRasterCalculator(f'{CC_MM} - hsf@7',
                                   dcc_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2891,7 +2946,7 @@ entries.append(entry_139)
 
 # rp
 # Cálculos raster
-calc_rp_07 = QgsRasterCalculator('pi@7 + hsi@7 - hsf@7 - etr@7',
+calc_rp_07 = QgsRasterCalculator(f'pi@7 + hsi@7 - hsf@7 - etr@7',
                                   rp_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2913,7 +2968,7 @@ entries.append(entry_151)
 
 # nr
 # Cálculos raster
-calc_nr_07 = QgsRasterCalculator('dcc@7 - etr@7 + etp@7',
+calc_nr_07 = QgsRasterCalculator(f'dcc@7 - etr@7 + etp@7',
                                   nr_07_fn, 
                                   'GTiff', 
                                   p_07.extent(), 
@@ -2940,7 +2995,7 @@ entries.append(entry_163)
 
 # hsi
 # Cálculos raster
-calc_hsi_08 = QgsRasterCalculator('hsf@7',
+calc_hsi_08 = QgsRasterCalculator(f'hsf@7',
                                   hsi_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -2962,7 +3017,7 @@ entries.append(entry_68)
 
 # c1
 # Cálculos raster
-calc_c1_08 = QgsRasterCalculator('((hsi@8 - 594.14 + pi@8)/499.37 < 1) * (hsi@8 - 594.14 + pi@8)/499.37 + ((hsi@8 - 594.14 + pi@8)/499.37 >= 1) * 1',
+calc_c1_08 = QgsRasterCalculator(f'((hsi@8 - {PM_MM} + pi@8)/{CC_PM_MM} < 1) * (hsi@8 - {PM_MM} + pi@8)/{CC_PM_MM} + ((hsi@8 - {PM_MM} + pi@8)/{CC_PM_MM} >= 1) * 1',
                                   c1_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -2984,7 +3039,7 @@ entries.append(entry_80)
 
 # c2
 # Cálculos raster
-calc_c2_08 = QgsRasterCalculator('((hsi@8 - 594.14 + pi@8 - c1@8*etp@8)/499.37 > 1) * 1 + ((hsi@8 - 594.14 + pi@8 - c1@8*etp@8)/499.37 <= 1) * (  ((hsi@8 - 594.14 + pi@8 - c1@8*etp@8)/499.37 < 0) * 0 + ((hsi@8 - 594.14 + pi@8 - c1@8*etp@8)/499.37 >= 0) * (hsi@8 - 594.14 + pi@8 - c1@8*etp@8)/499.37  )',
+calc_c2_08 = QgsRasterCalculator(f'((hsi@8 - {PM_MM} + pi@8 - c1@8*etp@8)/{CC_PM_MM} > 1) * 1 + ((hsi@8 - {PM_MM} + pi@8 - c1@8*etp@8)/{CC_PM_MM} <= 1) * (  ((hsi@8 - {PM_MM} + pi@8 - c1@8*etp@8)/{CC_PM_MM} < 0) * 0 + ((hsi@8 - {PM_MM} + pi@8 - c1@8*etp@8)/{CC_PM_MM} >= 0) * (hsi@8 - {PM_MM} + pi@8 - c1@8*etp@8)/{CC_PM_MM}  )',
                                   c2_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3006,7 +3061,7 @@ entries.append(entry_92)
 
 # hd
 # Cálculos raster
-calc_hd_08 = QgsRasterCalculator('hsi@8 - 594.14 + pi@8',
+calc_hd_08 = QgsRasterCalculator(f'hsi@8 - {PM_MM} + pi@8',
                                   hd_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3028,7 +3083,7 @@ entries.append(entry_104)
 
 # etr
 # Cálculos raster
-calc_etr_08 = QgsRasterCalculator('(hd@8 >= (c1@8 + c2@8)/2*etp@8) * (c1@8 + c2@8)/2*etp@8 + (hd@8 < (c1@8 + c2@8)/2*etp@8) * hd@8',
+calc_etr_08 = QgsRasterCalculator(f'(hd@8 >= (c1@8 + c2@8)/2*etp@8) * (c1@8 + c2@8)/2*etp@8 + (hd@8 < (c1@8 + c2@8)/2*etp@8) * hd@8',
                                   etr_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3050,7 +3105,7 @@ entries.append(entry_116)
 
 # hsf
 # Cálculos raster
-calc_hsf_08 = QgsRasterCalculator('(hd@8 + 594.14 - etr@8 >= 1093.5) * 1093.5 + (hd@8 + 594.14 - etr@8 < 1093.5) * (hd@8 + 594.14 - etr@8)',
+calc_hsf_08 = QgsRasterCalculator(f'(hd@8 + {PM_MM} - etr@8 >= {CC_MM}) * {CC_MM} + (hd@8 + {PM_MM} - etr@8 < {CC_MM}) * (hd@8 + {PM_MM} - etr@8)',
                                   hsf_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3072,7 +3127,7 @@ entries.append(entry_128)
 
 # dcc
 # Cálculos raster
-calc_dcc_08 = QgsRasterCalculator('1093.5 - hsf@8',
+calc_dcc_08 = QgsRasterCalculator(f'{CC_MM} - hsf@8',
                                   dcc_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3094,7 +3149,7 @@ entries.append(entry_140)
 
 # rp
 # Cálculos raster
-calc_rp_08 = QgsRasterCalculator('pi@8 + hsi@8 - hsf@8 - etr@8',
+calc_rp_08 = QgsRasterCalculator(f'pi@8 + hsi@8 - hsf@8 - etr@8',
                                   rp_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3116,7 +3171,7 @@ entries.append(entry_152)
 
 # nr
 # Cálculos raster
-calc_nr_08 = QgsRasterCalculator('dcc@8 - etr@8 + etp@8',
+calc_nr_08 = QgsRasterCalculator(f'dcc@8 - etr@8 + etp@8',
                                   nr_08_fn, 
                                   'GTiff', 
                                   p_08.extent(), 
@@ -3143,7 +3198,7 @@ entries.append(entry_164)
 
 # hsi
 # Cálculos raster
-calc_hsi_09 = QgsRasterCalculator('hsf@8',
+calc_hsi_09 = QgsRasterCalculator(f'hsf@8',
                                   hsi_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3165,7 +3220,7 @@ entries.append(entry_69)
 
 # c1
 # Cálculos raster
-calc_c1_09 = QgsRasterCalculator('((hsi@9 - 594.14 + pi@9)/499.37 < 1) * (hsi@9 - 594.14 + pi@9)/499.37 + ((hsi@9 - 594.14 + pi@9)/499.37 >= 1) * 1',
+calc_c1_09 = QgsRasterCalculator(f'((hsi@9 - {PM_MM} + pi@9)/{CC_PM_MM} < 1) * (hsi@9 - {PM_MM} + pi@9)/{CC_PM_MM} + ((hsi@9 - {PM_MM} + pi@9)/{CC_PM_MM} >= 1) * 1',
                                   c1_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3187,7 +3242,7 @@ entries.append(entry_81)
 
 # c2
 # Cálculos raster
-calc_c2_09 = QgsRasterCalculator('((hsi@9 - 594.14 + pi@9 - c1@9*etp@9)/499.37 > 1) * 1 + ((hsi@9 - 594.14 + pi@9 - c1@9*etp@9)/499.37 <= 1) * (  ((hsi@9 - 594.14 + pi@9 - c1@9*etp@9)/499.37 < 0) * 0 + ((hsi@9 - 594.14 + pi@9 - c1@9*etp@9)/499.37 >= 0) * (hsi@9 - 594.14 + pi@9 - c1@9*etp@9)/499.37  )',
+calc_c2_09 = QgsRasterCalculator(f'((hsi@9 - {PM_MM} + pi@9 - c1@9*etp@9)/{CC_PM_MM} > 1) * 1 + ((hsi@9 - {PM_MM} + pi@9 - c1@9*etp@9)/{CC_PM_MM} <= 1) * (  ((hsi@9 - {PM_MM} + pi@9 - c1@9*etp@9)/{CC_PM_MM} < 0) * 0 + ((hsi@9 - {PM_MM} + pi@9 - c1@9*etp@9)/{CC_PM_MM} >= 0) * (hsi@9 - {PM_MM} + pi@9 - c1@9*etp@9)/{CC_PM_MM}  )',
                                   c2_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3209,7 +3264,7 @@ entries.append(entry_93)
 
 # hd
 # Cálculos raster
-calc_hd_09 = QgsRasterCalculator('hsi@9 - 594.14 + pi@9',
+calc_hd_09 = QgsRasterCalculator(f'hsi@9 - {PM_MM} + pi@9',
                                   hd_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3231,7 +3286,7 @@ entries.append(entry_105)
 
 # etr
 # Cálculos raster
-calc_etr_09 = QgsRasterCalculator('(hd@9 >= (c1@9 + c2@9)/2*etp@9) * (c1@9 + c2@9)/2*etp@9 + (hd@9 < (c1@9 + c2@9)/2*etp@9) * hd@9',
+calc_etr_09 = QgsRasterCalculator(f'(hd@9 >= (c1@9 + c2@9)/2*etp@9) * (c1@9 + c2@9)/2*etp@9 + (hd@9 < (c1@9 + c2@9)/2*etp@9) * hd@9',
                                   etr_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3253,7 +3308,7 @@ entries.append(entry_117)
 
 # hsf
 # Cálculos raster
-calc_hsf_09 = QgsRasterCalculator('(hd@9 + 594.14 - etr@9 >= 1093.5) * 1093.5 + (hd@9 + 594.14 - etr@9 < 1093.5) * (hd@9 + 594.14 - etr@9)',
+calc_hsf_09 = QgsRasterCalculator(f'(hd@9 + {PM_MM} - etr@9 >= {CC_MM}) * {CC_MM} + (hd@9 + {PM_MM} - etr@9 < {CC_MM}) * (hd@9 + {PM_MM} - etr@9)',
                                   hsf_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3275,7 +3330,7 @@ entries.append(entry_129)
 
 # dcc
 # Cálculos raster
-calc_dcc_09 = QgsRasterCalculator('1093.5 - hsf@9',
+calc_dcc_09 = QgsRasterCalculator(f'{CC_MM} - hsf@9',
                                   dcc_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3297,7 +3352,7 @@ entries.append(entry_141)
 
 # rp
 # Cálculos raster
-calc_rp_09 = QgsRasterCalculator('pi@9 + hsi@9 - hsf@9 - etr@9',
+calc_rp_09 = QgsRasterCalculator(f'pi@9 + hsi@9 - hsf@9 - etr@9',
                                   rp_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3319,7 +3374,7 @@ entries.append(entry_153)
 
 # nr
 # Cálculos raster
-calc_nr_09 = QgsRasterCalculator('dcc@9 - etr@9 + etp@9',
+calc_nr_09 = QgsRasterCalculator(f'dcc@9 - etr@9 + etp@9',
                                   nr_09_fn, 
                                   'GTiff', 
                                   p_09.extent(), 
@@ -3346,7 +3401,7 @@ entries.append(entry_165)
 
 # hsi
 # Cálculos raster
-calc_hsi_10 = QgsRasterCalculator('hsf@9',
+calc_hsi_10 = QgsRasterCalculator(f'hsf@9',
                                   hsi_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3368,7 +3423,7 @@ entries.append(entry_70)
 
 # c1
 # Cálculos raster
-calc_c1_10 = QgsRasterCalculator('((hsi@10 - 594.14 + pi@10)/499.37 < 1) * (hsi@10 - 594.14 + pi@10)/499.37 + ((hsi@10 - 594.14 + pi@10)/499.37 >= 1) * 1',
+calc_c1_10 = QgsRasterCalculator(f'((hsi@10 - {PM_MM} + pi@10)/{CC_PM_MM} < 1) * (hsi@10 - {PM_MM} + pi@10)/{CC_PM_MM} + ((hsi@10 - {PM_MM} + pi@10)/{CC_PM_MM} >= 1) * 1',
                                   c1_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3390,7 +3445,7 @@ entries.append(entry_82)
 
 # c2
 # Cálculos raster
-calc_c2_10 = QgsRasterCalculator('((hsi@10 - 594.14 + pi@10 - c1@10*etp@10)/499.37 > 1) * 1 + ((hsi@10 - 594.14 + pi@10 - c1@10*etp@10)/499.37 <= 1) * (  ((hsi@10 - 594.14 + pi@10 - c1@10*etp@10)/499.37 < 0) * 0 + ((hsi@10 - 594.14 + pi@10 - c1@10*etp@10)/499.37 >= 0) * (hsi@10 - 594.14 + pi@10 - c1@10*etp@10)/499.37  )',
+calc_c2_10 = QgsRasterCalculator(f'((hsi@10 - {PM_MM} + pi@10 - c1@10*etp@10)/{CC_PM_MM} > 1) * 1 + ((hsi@10 - {PM_MM} + pi@10 - c1@10*etp@10)/{CC_PM_MM} <= 1) * (  ((hsi@10 - {PM_MM} + pi@10 - c1@10*etp@10)/{CC_PM_MM} < 0) * 0 + ((hsi@10 - {PM_MM} + pi@10 - c1@10*etp@10)/{CC_PM_MM} >= 0) * (hsi@10 - {PM_MM} + pi@10 - c1@10*etp@10)/{CC_PM_MM}  )',
                                   c2_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3412,7 +3467,7 @@ entries.append(entry_94)
 
 # hd
 # Cálculos raster
-calc_hd_10 = QgsRasterCalculator('hsi@10 - 594.14 + pi@10',
+calc_hd_10 = QgsRasterCalculator(f'hsi@10 - {PM_MM} + pi@10',
                                   hd_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3434,7 +3489,7 @@ entries.append(entry_106)
 
 # etr
 # Cálculos raster
-calc_etr_10 = QgsRasterCalculator('(hd@10 >= (c1@10 + c2@10)/2*etp@10) * (c1@10 + c2@10)/2*etp@10 + (hd@10 < (c1@10 + c2@10)/2*etp@10) * hd@10',
+calc_etr_10 = QgsRasterCalculator(f'(hd@10 >= (c1@10 + c2@10)/2*etp@10) * (c1@10 + c2@10)/2*etp@10 + (hd@10 < (c1@10 + c2@10)/2*etp@10) * hd@10',
                                   etr_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3456,7 +3511,7 @@ entries.append(entry_118)
 
 # hsf
 # Cálculos raster
-calc_hsf_10 = QgsRasterCalculator('(hd@10 + 594.14 - etr@10 >= 1093.5) * 1093.5 + (hd@10 + 594.14 - etr@10 < 1093.5) * (hd@10 + 594.14 - etr@10)',
+calc_hsf_10 = QgsRasterCalculator(f'(hd@10 + {PM_MM} - etr@10 >= {CC_MM}) * {CC_MM} + (hd@10 + {PM_MM} - etr@10 < {CC_MM}) * (hd@10 + {PM_MM} - etr@10)',
                                   hsf_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3478,7 +3533,7 @@ entries.append(entry_130)
 
 # dcc
 # Cálculos raster
-calc_dcc_10 = QgsRasterCalculator('1093.5 - hsf@10',
+calc_dcc_10 = QgsRasterCalculator(f'{CC_MM} - hsf@10',
                                   dcc_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3500,7 +3555,7 @@ entries.append(entry_142)
 
 # rp
 # Cálculos raster
-calc_rp_10 = QgsRasterCalculator('pi@10 + hsi@10 - hsf@10 - etr@10',
+calc_rp_10 = QgsRasterCalculator(f'pi@10 + hsi@10 - hsf@10 - etr@10',
                                   rp_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3522,7 +3577,7 @@ entries.append(entry_154)
 
 # nr
 # Cálculos raster
-calc_nr_10 = QgsRasterCalculator('dcc@10 - etr@10 + etp@10',
+calc_nr_10 = QgsRasterCalculator(f'dcc@10 - etr@10 + etp@10',
                                   nr_10_fn, 
                                   'GTiff', 
                                   p_10.extent(), 
@@ -3549,7 +3604,7 @@ entries.append(entry_166)
 
 
 # Cálculo de la suma anual de hsi
-calc_sum = QgsRasterCalculator('hsi@1 + hsi@2 + hsi@3 + hsi@4 + hsi@5 + hsi@6 + hsi@7 + hsi@8 + hsi@9 + hsi@10 + hsi@11 + hsi@12',
+calc_sum = QgsRasterCalculator(f'hsi@1 + hsi@2 + hsi@3 + hsi@4 + hsi@5 + hsi@6 + hsi@7 + hsi@8 + hsi@9 + hsi@10 + hsi@11 + hsi@12',
                                hsi_suma_fn, 
                                'GTiff', 
                                hsi_01.extent(), 
@@ -3560,7 +3615,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de hd
-calc_sum = QgsRasterCalculator('hd@1 + hd@2 + hd@3 + hd@4 + hd@5 + hd@6 + hd@7 + hd@8 + hd@9 + hd@10 + hd@11 + hd@12',
+calc_sum = QgsRasterCalculator(f'hd@1 + hd@2 + hd@3 + hd@4 + hd@5 + hd@6 + hd@7 + hd@8 + hd@9 + hd@10 + hd@11 + hd@12',
                                hd_suma_fn, 
                                'GTiff', 
                                hd_01.extent(), 
@@ -3571,7 +3626,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de etr
-calc_sum = QgsRasterCalculator('etr@1 + etr@2 + etr@3 + etr@4 + etr@5 + etr@6 + etr@7 + etr@8 + etr@9 + etr@10 + etr@11 + etr@12',
+calc_sum = QgsRasterCalculator(f'etr@1 + etr@2 + etr@3 + etr@4 + etr@5 + etr@6 + etr@7 + etr@8 + etr@9 + etr@10 + etr@11 + etr@12',
                                etr_suma_fn, 
                                'GTiff', 
                                etr_01.extent(), 
@@ -3582,7 +3637,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de hsf
-calc_sum = QgsRasterCalculator('hsf@1 + hsf@2 + hsf@3 + hsf@4 + hsf@5 + hsf@6 + hsf@7 + hsf@8 + hsf@9 + hsf@10 + hsf@11 + hsf@12',
+calc_sum = QgsRasterCalculator(f'hsf@1 + hsf@2 + hsf@3 + hsf@4 + hsf@5 + hsf@6 + hsf@7 + hsf@8 + hsf@9 + hsf@10 + hsf@11 + hsf@12',
                                hsf_suma_fn, 
                                'GTiff', 
                                hsf_01.extent(), 
@@ -3593,7 +3648,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de dcc
-calc_sum = QgsRasterCalculator('dcc@1 + dcc@2 + dcc@3 + dcc@4 + dcc@5 + dcc@6 + dcc@7 + dcc@8 + dcc@9 + dcc@10 + dcc@11 + dcc@12',
+calc_sum = QgsRasterCalculator(f'dcc@1 + dcc@2 + dcc@3 + dcc@4 + dcc@5 + dcc@6 + dcc@7 + dcc@8 + dcc@9 + dcc@10 + dcc@11 + dcc@12',
                                dcc_suma_fn, 
                                'GTiff', 
                                dcc_01.extent(), 
@@ -3604,7 +3659,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de rp
-calc_sum = QgsRasterCalculator('rp@1 + rp@2 + rp@3 + rp@4 + rp@5 + rp@6 + rp@7 + rp@8 + rp@9 + rp@10 + rp@11 + rp@12',
+calc_sum = QgsRasterCalculator(f'rp@1 + rp@2 + rp@3 + rp@4 + rp@5 + rp@6 + rp@7 + rp@8 + rp@9 + rp@10 + rp@11 + rp@12',
                                rp_suma_fn, 
                                'GTiff', 
                                rp_01.extent(), 
@@ -3615,7 +3670,7 @@ calc_sum.processCalculation()
 
 
 # Cálculo de la suma anual de nr
-calc_sum = QgsRasterCalculator('nr@1 + nr@2 + nr@3 + nr@4 + nr@5 + nr@6 + nr@7 + nr@8 + nr@9 + nr@10 + nr@11 + nr@12',
+calc_sum = QgsRasterCalculator(f'nr@1 + nr@2 + nr@3 + nr@4 + nr@5 + nr@6 + nr@7 + nr@8 + nr@9 + nr@10 + nr@11 + nr@12',
                                nr_suma_fn, 
                                'GTiff', 
                                nr_01.extent(), 
@@ -3623,5 +3678,3 @@ calc_sum = QgsRasterCalculator('nr@1 + nr@2 + nr@3 + nr@4 + nr@5 + nr@6 + nr@7 +
                                nr_01.height(), 
                                entries)
 calc_sum.processCalculation()
-
-
