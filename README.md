@@ -22,3 +22,4 @@ cc_pm_mm=499.37
 ```
 
 ## Salidas
+- Mapas raster del modelo de balance hídrico.
